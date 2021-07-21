@@ -3,7 +3,7 @@
 tempfolder=/tmp
 version=00.01.02.00
 
-while getopts s:u:a:p:l:hv option
+while getopts s:u:a:p:l:d:hv option
    do
       case "${option}"
          in
@@ -12,6 +12,7 @@ while getopts s:u:a:p:l:hv option
            a) AMPST=$( echo "WHERE AMPState = '${OPTARG}'" );;
            p) PEST=$( echo "WHERE PEState = '${OPTARG}'" );;
            l) LUSR=${OPTARG};;
+           d) PUSR=${OPTARG};;
            h) ;;
            v) ;;
       esac
@@ -27,9 +28,11 @@ if [ "$1" == "-h" ]
      echo -e "                      [ -p PEState filter ] "
      echo -e "                      Accepted states are : DELAYED, HOST-RESTART, ABORTING, PARSING-WAIT, PARSING, ELICIT ( for ELICIT CLIENT DATA ), DISPATCHING, BLOCKED, "
      echo -e "                                            ACTIVE, RESPONSE, IDLE ( two states IDLE and IDLE: IN-DOUBT ), QTDELAYED, SESDELAYED, UNKNOWN "
-     echo -e "                      [ -l DBS logon user ] default is SYSTEMFE "
+     echo -e "                      [ -l DBS logon user ] "
+     echo -e "                      [ -d DBS password ] "
      echo -e "                      [ -h display help text and exit ] "
-     echo -e "                      [ -v display version text and exit ] \n"
+     echo -e "                      [ -v display version text and exit ] "
+     echo -e "     -l and -d is mandatory \n"
      exit
 fi
 
@@ -45,7 +48,7 @@ fi
 /opt/teradata/client/$(/usr/pde/bin/pdepath -i | grep PDE: | cut -d' ' -f2 | cut -d'.' -f1,2)/bin/bteq <<EOI
 .set echoreq off
 .messageout file=$tempfolder/session_mon.stdout.txt
-.logon /${LUSR:-xxxxxx},xxxxxxx
+.logon /$LUSR,$PUSR
 .export report file=$tempfolder/session_mon.csv
 .width 250 
 
