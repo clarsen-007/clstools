@@ -51,9 +51,9 @@ fi
 (
 /opt/teradata/client/$(/usr/pde/bin/pdepath -i | grep PDE: | cut -d' ' -f2 | cut -d'.' -f1,2)/bin/bteq <<EOI
 .set echoreq off
-.messageout file=$tempfolder/session_mon.stdout.txt
+.messageout file=$tempfolder/flow_control.stdout.txt
 .logon /$LUSR,$PUSR
-.export report file=$tempfolder/session_mon.csv
+.export report file=$tempfolder/flow_control.csv
 .width 270
 .set separator '|'
 
@@ -61,7 +61,7 @@ SELECT THEDATE,  EXTRACT ( HOUR FROM (( TheTime ))) AS Starthour
     ,WM_COD_CPU
     ,CAST ( SUM ( CPUIDLE + CPUIOWAIT + CPUUSERV + CPUUEXEC ) AS BIGINT ) / 100 as MaxCPUSeconds
     ,CAST ( MaxCPUSeconds / 1000 * WM_COD_CPU AS INTEGER ) AS WMCODSeconds
-    ,CAST ( SUM ( CPUUSERV + CPUUEXEC ) AS INTEGER ) /100 AS CPUSecondsConsumed
+    ,CAST ( SUM ( CPUUSERV + CPUUEXEC ) AS INTEGER ) / 100 AS CPUSecondsConsumed
     ,CPUSecondsConsumed*100/WMCODSeconds as Percent_Consumed
     ,MAX( AwtInuseMax ) AS AwtInuseMax
     ,MAX( AmpsFlowControlled ) AS AmpsFlowControlled
@@ -79,12 +79,12 @@ EOI
 
 if [ -z "$IPAD" ]
    then
-     cat $tempfolder/session_mon.csv
+     cat $tempfolder/flow_control.csv
    else
-     cat $tempfolder/session_mon.csv | egrep 'Session|---' &&
-     cat $tempfolder/session_mon.csv | grep $IPAD
+     cat $tempfolder/flow_control.csv | egrep 'Session|---' &&
+     cat $tempfolder/flow_control.csv | grep $IPAD
 fi
 
 # Cleanup...
-rm $tempfolder/session_mon.csv
-rm $tempfolder/session_mon.stdout.txt
+rm $tempfolder/flow_control.csv
+rm $tempfolder/flow_control.stdout.txt
